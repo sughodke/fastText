@@ -79,8 +79,9 @@ class FastText {
   void saveModel(const std::string);
   void saveOutput();
   void saveModel();
+  void loadModelCompat(const char*);
   void loadModel(std::istream&);
-  void loadModel(const std::string&);
+  void loadModelStr(const std::string&);
   void printInfo(real, real, std::ostream&);
 
   void supervised(
@@ -91,7 +92,9 @@ class FastText {
   void cbow(Model&, real, const std::vector<int32_t>&);
   void skipgram(Model&, real, const std::vector<int32_t>&);
   std::vector<int32_t> selectEmbeddings(int32_t) const;
-  void getSentenceVector(std::istream&, Vector&);
+
+  std::string getSentenceVectorCompat(const std::string);
+  void getSentenceVector(const std::string, Vector&);
   void quantize(const Args);
   std::tuple<int64_t, double, double> test(std::istream&, int32_t, real = 0.0);
   void predict(std::istream&, int32_t, bool, real = 0.0);

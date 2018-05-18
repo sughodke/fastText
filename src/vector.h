@@ -22,13 +22,15 @@ class QMatrix;
 
 class Vector {
 
-  protected:
-    std::vector<real> data_;
+//  protected:
+
 
   public:
-    explicit Vector(int64_t);
-    Vector(const Vector&) = delete;
-    Vector& operator=(const Vector&) = delete;
+    std::vector<real> data_;
+
+    Vector(int64_t); //explicit
+//    Vector(const Vector&) = delete;
+//    Vector& operator=(const Vector&) = delete;
 
     inline real* data() {
       return data_.data();
@@ -43,9 +45,14 @@ class Vector {
       return data_[i];
     }
 
-    inline int64_t size() const {
+    int64_t size() const {
       return data_.size();
     }
+
+    const real get(int64_t i) const {
+        return data_[i];
+    }
+
     void zero();
     void mul(real);
     real norm() const;

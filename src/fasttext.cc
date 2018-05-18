@@ -179,7 +179,12 @@ void FastText::saveModel(const std::string path) {
   ofs.close();
 }
 
-void FastText::loadModel(const std::string& filename) {
+void FastText::loadModelCompat(const char* filename) {
+  std::string strFilename(filename);
+  loadModelStr(strFilename);
+}
+
+void FastText::loadModelStr(const std::string& filename) {
   std::ifstream ifs(filename, std::ifstream::binary);
   if (!ifs.is_open()) {
     throw std::invalid_argument(filename + " cannot be opened for loading!");
@@ -438,13 +443,29 @@ void FastText::predict(
   }
 }
 
+//    Vector* svec_ptr = new Vector(getDimension());
+//    Vector& svec = *svec_ptr;
+std::string FastText::getSentenceVectorCompat (
+    const std::string sentence) {
+    Vector svec(getDimension());
+    svec.zero();
+
+    getSentenceVector(sentence, svec);
+
+    std::ostringstream os;
+    os << svec;
+    return os.str();
+}
+
 void FastText::getSentenceVector(
-    std::istream& in,
+    const std::string sentence,
     fasttext::Vector& svec) {
   svec.zero();
+  std::istringstream iss(sentence);
+
   if (args_->model == model_name::sup) {
     std::vector<int32_t> line, labels;
-    dict_->getLine(in, line, labels);
+    dict_->getLine(iss, line, labels);
     for (int32_t i = 0; i < line.size(); i++) {
       addInputVector(svec, line[i]);
     }
@@ -453,9 +474,8 @@ void FastText::getSentenceVector(
     }
   } else {
     Vector vec(args_->dim);
-    std::string sentence;
-    std::getline(in, sentence);
-    std::istringstream iss(sentence);
+//    std::getline(in, sentence);
+
     std::string word;
     int32_t count = 0;
     while (iss >> word) {
@@ -718,3 +738,31 @@ bool FastText::isQuant() const {
 }
 
 }
+
+
+//#if 0
+#ifdef __EMSCRIPTEN__
+#include <emscripten/bind.h>
+//#include <emscripten/val.h>
+namespace emscripten {
+
+// select_overload<void(std::string)>(&fasttext::FastText::loadModel))
+
+EMSCRIPTEN_BINDINGS(fasttext_binding) {
+
+  class_<fasttext::FastText>("FastTextJS")
+    .constructor<>()
+    .function("loadModel", &fasttext::FastText::loadModelStr)
+    .function("getDimension", &fasttext::FastText::getDimension)
+    .function("getSentenceVector", &fasttext::FastText::getSentenceVectorCompat)
+    ;
+
+  class_<fasttext::Vector>("VectorJS")
+    .constructor<int>()
+    .function("get", &fasttext::Vector::get)
+    .function("size", &fasttext::Vector::size)
+    ;
+}
+
+}
+#endif

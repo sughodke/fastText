@@ -9,6 +9,8 @@
 
 CXX = c++
 CXXFLAGS = -pthread -std=c++0x -march=native
+LDFLAGS = --preload-file yahoo_answers.ftz  --bind 
+# src/glue_wrapper.cc --post-js glue.js
 OBJS = args.o dictionary.o productquantizer.o matrix.o qmatrix.o vector.o model.o utils.o fasttext.o
 INCLUDES = -I.
 
@@ -47,6 +49,19 @@ fasttext.o: src/fasttext.cc src/*.h
 
 fasttext: $(OBJS) src/fasttext.cc
 	$(CXX) $(CXXFLAGS) $(OBJS) src/main.cc -o fasttext
+
+infer_cli: $(OBJS) src/infer_cli.cc
+	$(CXX) $(CXXFLAGS) $(OBJS) src/infer_cli.cc -o infer_cli
+
+glue: fasttext.idl
+	python /usr/local/opt/emscripten/libexec/tools/webidl_binder.py fasttext.idl glue
+	mv glue.cpp src/.
+
+fasttext.js: CXX = emcc
+fasttext.js: OBJS = args.o dictionary.o productquantizer.o matrix.o qmatrix.o vector.o model.o
+fasttext.js: $(OBJS) utils.o src/fasttext.cc
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJS) src/fasttext.cc -o fasttext.js
+# -s DISABLE_EXCEPTION_CATCHING=2
 
 clean:
 	rm -rf *.o fasttext

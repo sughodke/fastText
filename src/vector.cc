@@ -114,3 +114,18 @@ std::ostream& operator<<(std::ostream& os, const Vector& v)
 }
 
 }
+
+#if false   // __EMSCRIPTEN__
+#include <emscripten/bind.h>
+#include <emscripten/val.h>
+namespace emscripten {
+
+// Binding code
+EMSCRIPTEN_BINDINGS(vector_example) {
+  class_<fasttext::Vector>("Vector")
+          .constructor<int>()
+          ;
+}
+
+}
+#endif

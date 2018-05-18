@@ -50,7 +50,7 @@ set_target_properties(fasttext-static PROPERTIES OUTPUT_NAME fasttext)
 set_target_properties(fasttext-static_pic PROPERTIES OUTPUT_NAME fasttext_pic
   POSITION_INDEPENDENT_CODE True)
 add_executable(fasttext-bin src/main.cc)
-target_link_libraries(fasttext-bin pthread fasttext-static)
+target_link_libraries(fasttext-bin pthread fasttext-shared)
 set_target_properties(fasttext-bin PROPERTIES PUBLIC_HEADER "${HEADER_FILES}" OUTPUT_NAME fasttext)
 install (TARGETS fasttext-shared
     LIBRARY DESTINATION lib)
